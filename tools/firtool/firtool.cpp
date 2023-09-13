@@ -150,6 +150,11 @@ static cl::opt<bool>
                         cl::desc("Scalarize the ports of any external modules"),
                         cl::init(true), cl::cat(mainCategory));
 
+static cl::opt<bool>
+    injectCoverOp("inject-cover",
+                       cl::desc("Inject CoverOp into any other brach."),
+                       cl::init(true), cl::cat(mainCategory));
+
 static firtool::FirtoolOptions firtoolOptions(mainCategory);
 
 enum OutputFormatKind {
@@ -331,6 +336,10 @@ static LogicalResult processBuffer(
   pm.nest<firrtl::CircuitOp>().addPass(firrtl::createLowerFIRRTLAnnotationsPass(
       disableAnnotationsUnknown, disableAnnotationsClassless,
       lowerAnnotationsNoRefTypePorts));
+
+  // We add any front-end rewrite pass here.
+  if(injectCoverOp)
+    pm.nest<firrtl::CircuitOp>().addPass(circt::firrtl::createInjectCoverOpPass());
 
   // If the user asked for --parse-only, stop after running LowerAnnotations.
   if (outputFormat == OutputParseOnly) {
@@ -610,6 +619,7 @@ int main(int argc, char **argv) {
   // Register passes before parsing command-line options, so that they are
   // available for use with options like `--mlir-print-ir-before`.
   {
+    circt::firrtl::registerInjectCoverOpPass();
     // MLIR transforms:
     // Don't use registerTransformsPasses, pulls in too much.
     registerCSEPass();

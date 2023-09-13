@@ -737,4 +737,12 @@ def LowerGroups : Pass<"firrtl-lower-groups", "firrtl::CircuitOp"> {
   let dependentDialects = ["sv::SVDialect"];
 }
 
+def InjectCoverOp : Pass<"firrtl-inject-cover", "firrtl::CircuitOp"> {
+  let summary = "Inject ConverOp in every branch, inorder to analysis branch coverage";
+  let description = [{
+  This pass inject CoverOp into each branch.
+  }];
+  let constructor = "circt::firrtl::createInjectCoverOpPass()";
+}
+
 #endif // CIRCT_DIALECT_FIRRTL_PASSES_TD
