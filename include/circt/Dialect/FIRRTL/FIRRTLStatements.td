@@ -33,6 +33,15 @@ def AttachOp : FIRRTLOp<"attach"> {
   let hasCanonicalizeMethod = true;
 }
 
+def CCoverOp : FIRRTLOp<"ccover"> {
+  let summary = "Cover Statement";
+
+  let arguments = (ins UInt1Type:$predicate);
+                  
+  let assemblyFormat =
+    "$predicate  attr-dict `:` qualified(type($predicate))";
+}
+
 def ConnectOp : FIRRTLOp<"connect", [FConnectLike]> {
   let summary = "Connect two signals";
   let description = [{
