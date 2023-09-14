@@ -1684,6 +1684,7 @@ struct FIRRTLLowering : public FIRRTLVisitor<FIRRTLLowering, LogicalResult> {
   LogicalResult visitStmt(RefForceInitialOp op);
   LogicalResult visitStmt(RefReleaseOp op);
   LogicalResult visitStmt(RefReleaseInitialOp op);
+  LogicalResult visitStmt(CCoverOp op);
 
   FailureOr<Value> lowerSubindex(SubindexOp op, Value input);
   FailureOr<Value> lowerSubaccess(SubaccessOp op, Value input);
@@ -1796,7 +1797,7 @@ LogicalResult FIRRTLLowering::run() {
   for (auto &op : body.front().getOperations()) {
     builder.setInsertionPoint(&op);
     builder.setLoc(op.getLoc());
-    auto done = succeeded(dispatchVisitor(&op));
+    auto done = succeeded(dispatchVisitor(&op)); // 实际上我们要在这里注册一些东西
     circuitState.processRemainingAnnotations(&op, AnnotationSet(&op));
     if (done)
       opsToRemove.push_back(&op);
@@ -3699,6 +3700,11 @@ LogicalResult FIRRTLLowering::visitStmt(VerifAssumeIntrinsicOp op) {
 LogicalResult FIRRTLLowering::visitStmt(VerifCoverIntrinsicOp op) {
   builder.create<verif::CoverOp>(getLoweredValue(op.getProperty()),
                                  op.getLabelAttr());
+  return success();
+}
+
+LogicalResult FIRRTLLowering::visitStmt(CCoverOp op) {
+  builder.create<verif::CCoverOp>(getLoweredNonClockValue(op.getClock()), getLoweredValue(op.getPredicate()));
   return success();
 }
 

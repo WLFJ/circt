@@ -3462,6 +3462,7 @@ private:
   LogicalResult visitVerif(verif::AssertOp op);
   LogicalResult visitVerif(verif::AssumeOp op);
   LogicalResult visitVerif(verif::CoverOp op);
+  LogicalResult visitVerif(verif::CCoverOp op);
 
 public:
   ModuleEmitter &emitter;
@@ -4215,6 +4216,10 @@ LogicalResult StmtEmitter::visitVerif(verif::AssumeOp op) {
 
 LogicalResult StmtEmitter::visitVerif(verif::CoverOp op) {
   return emitVerifAssertLike(op, op.getProperty(), PPExtString("cover"));
+}
+
+LogicalResult StmtEmitter::visitVerif(verif::CCoverOp op) {
+  return emitVerifAssertLike(op, op.getPredicate(), PPExtString("cover"));
 }
 
 LogicalResult StmtEmitter::emitIfDef(Operation *op, MacroIdentAttr cond) {

@@ -43,6 +43,14 @@ def CoverOp : AssertLikeOp<"cover"> {
   let summary = "Ensure that a property can hold.";
 }
 
+def CCoverOp : AssertLikeOp<"ccover"> {
+  let summary = "Hack.";
+  let arguments = (ins I1:$clock, I1:$predicate);
+  let assemblyFormat = [{
+    $clock `,` $predicate attr-dict
+  }];
+}
+
 //===----------------------------------------------------------------------===//
 // Printing Formatted Messages
 //===----------------------------------------------------------------------===//
