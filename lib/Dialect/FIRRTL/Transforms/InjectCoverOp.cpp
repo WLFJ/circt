@@ -35,6 +35,19 @@ struct Injecter {
     auto loc = whenOp.getLoc();
     ImplicitLocOpBuilder b(loc, whenOp);
     // auto *context = b.getContext();
+    // get global module clock
+    
+    whenOp->getParentOp();
+    Value clk;
+    // Here we may have to recursively get it's parent Op.
+    if(llvm::isa<FModuleOp>(whenOp->getParentOp())) {
+      FModuleOp module = dyn_cast<FModuleOp>(whenOp->getParentOp());
+      clk = module.getArgument(0);
+    } else {
+      llvm::errs() << "Is whenOp not nested in FModuleOp?\n";
+      whenOp->getParentOp()->dump();
+      return failure();
+    }
     const APInt cone(1, 1);
 
     llvm::errs() << "Matched WhenOp---->\n";
@@ -47,13 +60,13 @@ struct Injecter {
     ImplicitLocOpBuilder thenBuilder(thenBlock.getLoc(), thenBlock);
     auto constTrueOp = thenBuilder.create<ConstantOp>(loc, UIntType::get(thenBuilder.getContext(), 1, true), cone); 
 
-    thenBuilder.create<CCoverOp>(constTrueOp);
+    thenBuilder.create<CCoverOp>(clk, constTrueOp);
 
     auto &elseBlock = whenOp.getElseRegion();
     ImplicitLocOpBuilder elseBuilder(elseBlock.getLoc(), elseBlock);
     constTrueOp = elseBuilder.create<ConstantOp>(loc, UIntType::get(elseBuilder.getContext(), 1, true), cone);
     
-    elseBuilder.create<CCoverOp>(constTrueOp);
+    elseBuilder.create<CCoverOp>(clk, constTrueOp);
 
     return success();
   }

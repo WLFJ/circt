@@ -36,10 +36,10 @@ def AttachOp : FIRRTLOp<"attach"> {
 def CCoverOp : FIRRTLOp<"ccover"> {
   let summary = "Cover Statement";
 
-  let arguments = (ins UInt1Type:$predicate);
+  let arguments = (ins ClockType:$clock, UInt1Type:$predicate);
                   
   let assemblyFormat =
-    "$predicate  attr-dict `:` qualified(type($predicate))";
+    "$clock `,` $predicate  attr-dict `:` qualified(type($clock)) `,` qualified(type($predicate))";
 }
 
 def ConnectOp : FIRRTLOp<"connect", [FConnectLike]> {
